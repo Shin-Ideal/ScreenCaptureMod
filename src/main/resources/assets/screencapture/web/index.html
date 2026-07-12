@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ScreenCapture for Minecraft</title>
+  <style>
+    :root {
+      --bg: #101418;
+      --panel: #1a222c;
+      --text: #e8eef4;
+      --muted: #9aa8b5;
+      --accent: #3d9a6a;
+      --accent-hover: #48b37b;
+      --danger: #c45c5c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      background: radial-gradient(circle at top, #1c2733 0%, var(--bg) 55%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(720px, 100%);
+      background: var(--panel);
+      border: 1px solid #2b3642;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      font-weight: 650;
+    }
+    p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+      background: var(--accent);
+    }
+    button:hover { background: var(--accent-hover); }
+    button.stop { background: var(--danger); }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    #preview {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #0b0f13;
+      border-radius: 12px;
+      object-fit: contain;
+      border: 1px solid #2b3642;
+    }
+    #status {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    canvas { display: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Minecraft Screen Capture</h1>
+    <p>
+      このページは Minecraft がローカルでホストしています（127.0.0.1）。
+      「画面を共有」を押して共有したい画面・ウィンドウを選ぶと、ゲーム内オーバーレイに表示されます。
+    </p>
+    <div class="row">
+      <button id="startBtn" type="button">画面を共有</button>
+      <button id="stopBtn" class="stop" type="button" disabled>共有を停止</button>
+    </div>
+    <video id="preview" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+    <div id="status">待機中…</div>
+  </main>
+
+  <script>
+    const preview = document.getElementById("preview");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d", { alpha: false });
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const statusEl = document.getElementById("status");
+
+    let stream = null;
+    let timer = null;
+    let sending = false;
+    let fps = 15;
+    let maxWidth = 1280;
+
+    async function loadConfig() {
+      try {
+        const res = await fetch("/config.json", { cache: "no-store" });
+        if (!res.ok) return;
+        const cfg = await res.json();
+        if (cfg.fps) fps = cfg.fps;
+        if (cfg.maxWidth) maxWidth = cfg.maxWidth;
+      } catch (e) {
+        console.warn("config load failed", e);
+      }
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    async function sendFrame() {
+      if (!stream || sending) return;
+      const track = stream.getVideoTracks()[0];
+      if (!track || track.readyState !== "live") return;
+
+      const vw = preview.videoWidth || 0;
+      const vh = preview.videoHeight || 0;
+      if (vw < 2 || vh < 2) return;
+
+      let tw = vw;
+      let th = vh;
+      if (tw > maxWidth) {
+        const scale = maxWidth / tw;
+        tw = Math.max(2, Math.round(tw * scale));
+        th = Math.max(2, Math.round(th * scale));
+      }
+
+      if (canvas.width !== tw || canvas.height !== th) {
+        canvas.width = tw;
+        canvas.height = th;
+      }
+
+      ctx.drawImage(preview, 0, 0, tw, th);
+
+      sending = true;
+      try {
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.7));
+        if (blob) {
+          await fetch("/frame", {
+            method: "POST",
+            headers: { "Content-Type": "image/jpeg" },
+            body: blob,
+            cache: "no-store"
+          });
+        }
+      } catch (e) {
+        console.warn("frame upload failed", e);
+        setStatus("送信エラー: Minecraft 側のサーバに届いていません");
+      } finally {
+        sending = false;
+      }
+    }
+
+    function startLoop() {
+      stopLoop();
+      const interval = Math.max(16, Math.round(1000 / fps));
+      timer = setInterval(sendFrame, interval);
+    }
+
+    function stopLoop() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    async function startCapture() {
+      await loadConfig();
+      try {
+        stream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            frameRate: { ideal: fps, max: fps },
+            width: { ideal: maxWidth }
+          },
+          audio: false
+        });
+      } catch (e) {
+        setStatus("画面共有がキャンセルされました");
+        return;
+      }
+
+      preview.srcObject = stream;
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      setStatus("共有中… Minecraft 右上にプレビューが表示されます");
+      startLoop();
+
+      stream.getVideoTracks()[0].addEventListener("ended", () => {
+        stopCapture(false);
+        setStatus("ブラウザ側で共有が終了しました");
+      });
+    }
+
+    function stopCapture(updateStatus = true) {
+      stopLoop();
+      if (stream) {
+        stream.getTracks().forEach((t) => t.stop());
+        stream = null;
+      }
+      preview.srcObject = null;
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      if (updateStatus) setStatus("共有を停止しました");
+    }
+
+    startBtn.addEventListener("click", startCapture);
+    stopBtn.addEventListener("click", () => stopCapture(true));
+    loadConfig().then(() => setStatus("準備完了（fps=" + fps + ", maxWidth=" + maxWidth + "）"));
+  </script>
+</body>
+</html>
