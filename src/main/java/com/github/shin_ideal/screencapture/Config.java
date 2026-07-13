@@ -1,8 +1,8 @@
 package com.github.shin_ideal.screencapture;
 
-import java.io.File;
-
 import net.minecraftforge.common.config.Configuration;
+
+import java.io.File;
 
 public class Config {
 
@@ -12,6 +12,7 @@ public class Config {
     public static int overlayWidth = 320;
     public static int overlayMargin = 8;
     public static boolean overlayEnabled = true;
+    public static float worldScreenWidth = 2.0F;
 
     public static void synchronizeConfiguration(File configFile) {
         Configuration configuration = new Configuration(configFile);
@@ -56,6 +57,12 @@ public class Config {
             Configuration.CATEGORY_GENERAL,
             overlayEnabled,
             "Whether the capture overlay is drawn when a stream is active.");
+        worldScreenWidth = (float) configuration.get(
+                Configuration.CATEGORY_GENERAL,
+                "worldScreenWidth",
+                worldScreenWidth,
+                "Default width in blocks for /screencapture set world projection.")
+            .getDouble(worldScreenWidth);
 
         if (configuration.hasChanged()) {
             configuration.save();

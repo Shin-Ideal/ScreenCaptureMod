@@ -2,26 +2,29 @@ package com.github.shin_ideal.screencapture.client;
 
 public final class WorldScreenPlacement {
 
-    public final int blockX;
-    public final int blockY;
-    public final int blockZ;
+    public final double centerX;
+    public final double centerY;
+    public final double centerZ;
     public final float widthBlocks;
     public final WorldScreenFacing facing;
 
-    public WorldScreenPlacement(int blockX, int blockY, int blockZ, float widthBlocks, WorldScreenFacing facing) {
-        this.blockX = blockX;
-        this.blockY = blockY;
-        this.blockZ = blockZ;
+    public WorldScreenPlacement(double centerX, double centerY, double centerZ, float widthBlocks,
+                                WorldScreenFacing facing) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.centerZ = centerZ;
         this.widthBlocks = widthBlocks;
         this.facing = facing;
     }
 
-    public boolean matchesBlock(int x, int y, int z) {
-        return blockX == x && blockY == y && blockZ == z;
-    }
-
     public String describe() {
-        return blockX + " " + blockY + " " + blockZ + " (" + facing.name().toLowerCase() + ", w="
-            + String.format("%.1f", widthBlocks) + ")";
+        return String.format(
+            "%.1f %.1f %.1f (%s, w=%.1f)",
+            centerX,
+            centerY,
+            centerZ,
+            facing.name()
+                .toLowerCase(),
+            widthBlocks);
     }
 }

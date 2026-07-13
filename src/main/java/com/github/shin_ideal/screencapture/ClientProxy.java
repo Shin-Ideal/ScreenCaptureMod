@@ -2,6 +2,7 @@ package com.github.shin_ideal.screencapture;
 
 import com.github.shin_ideal.screencapture.client.CaptureOverlay;
 import com.github.shin_ideal.screencapture.client.CaptureSession;
+import com.github.shin_ideal.screencapture.client.CaptureWorldProjection;
 import com.github.shin_ideal.screencapture.command.ScreenCaptureCommand;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -16,6 +17,7 @@ public class ClientProxy extends CommonProxy {
         super.preInit(event);
         CaptureSession.init();
         MinecraftForge.EVENT_BUS.register(new CaptureOverlay());
+        MinecraftForge.EVENT_BUS.register(new CaptureWorldProjection());
     }
 
     @Override

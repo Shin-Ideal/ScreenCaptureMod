@@ -1,17 +1,16 @@
 package com.github.shin_ideal.screencapture.client;
 
-import java.awt.Desktop;
+import com.github.shin_ideal.screencapture.Config;
+import com.github.shin_ideal.screencapture.ScreenCaptureMod;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.imageio.ImageIO;
-
-import com.github.shin_ideal.screencapture.Config;
-import com.github.shin_ideal.screencapture.ScreenCaptureMod;
 
 public final class CaptureSession {
 
@@ -20,7 +19,8 @@ public final class CaptureSession {
     private static final AtomicLong frameCount = new AtomicLong();
     private static volatile boolean running;
 
-    private CaptureSession() {}
+    private CaptureSession() {
+    }
 
     public static void init() {
         // Eager class load on client.
@@ -99,13 +99,13 @@ public final class CaptureSession {
                 .toLowerCase();
             if (os.contains("win")) {
                 Runtime.getRuntime()
-                    .exec(new String[] { "rundll32", "url.dll,FileProtocolHandler", url });
+                    .exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
             } else if (os.contains("mac")) {
                 Runtime.getRuntime()
-                    .exec(new String[] { "open", url });
+                    .exec(new String[]{"open", url});
             } else {
                 Runtime.getRuntime()
-                    .exec(new String[] { "xdg-open", url });
+                    .exec(new String[]{"xdg-open", url});
             }
         } catch (Exception e) {
             ScreenCaptureMod.LOG.error("Could not open browser for " + url, e);

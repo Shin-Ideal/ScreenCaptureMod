@@ -1,5 +1,11 @@
 package com.github.shin_ideal.screencapture.client;
 
+import com.github.shin_ideal.screencapture.Config;
+import com.github.shin_ideal.screencapture.ScreenCaptureMod;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,12 +13,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
-
-import com.github.shin_ideal.screencapture.Config;
-import com.github.shin_ideal.screencapture.ScreenCaptureMod;
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
 
 /**
  * Self-hosted local HTTP server that serves the browser capture page and accepts JPEG frames.

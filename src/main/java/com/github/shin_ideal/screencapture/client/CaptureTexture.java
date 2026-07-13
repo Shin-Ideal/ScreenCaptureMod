@@ -1,10 +1,10 @@
 package com.github.shin_ideal.screencapture.client;
 
-import java.awt.image.BufferedImage;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.util.ResourceLocation;
+
+import java.awt.image.BufferedImage;
 
 /**
  * Uploads the latest browser capture frame into an OpenGL texture on the client render thread.
@@ -17,7 +17,8 @@ public final class CaptureTexture {
     private static int height;
     private static boolean hasFrame;
 
-    private CaptureTexture() {}
+    private CaptureTexture() {
+    }
 
     public static void tick() {
         BufferedImage frame = CaptureSession.pollLatestFrame();

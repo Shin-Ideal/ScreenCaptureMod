@@ -12,9 +12,12 @@ public class CommonProxy {
         ScreenCaptureMod.LOG.info("ScreenCapture " + Tags.VERSION);
     }
 
-    public void init(FMLInitializationEvent event) {}
+    public void init(FMLInitializationEvent event) {
+    }
 
-    public void postInit(FMLPostInitializationEvent event) {}
+    public void postInit(FMLPostInitializationEvent event) {
+    }
 
-    public void serverStarting(FMLServerStartingEvent event) {}
+    public void serverStarting(FMLServerStartingEvent event) {
+    }
 }
