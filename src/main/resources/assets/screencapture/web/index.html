@@ -3,132 +3,421 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ScreenCapture for Minecraft</title>
+  <title>ScreenCapture for Minecraft - Smooth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #101418;
-      --panel: #1a222c;
-      --text: #e8eef4;
-      --muted: #9aa8b5;
-      --accent: #3d9a6a;
-      --accent-hover: #48b37b;
-      --danger: #c45c5c;
+      --bg: #0b0f14;
+      --card-bg: rgba(22, 30, 41, 0.85);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-inner: rgba(14, 20, 28, 0.6);
+      --text: #f0f4f8;
+      --text-dim: #94a3b8;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-light: rgba(16, 185, 129, 0.15);
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --blue: #3b82f6;
+      --badge-bg: rgba(255, 255, 255, 0.06);
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-      background: radial-gradient(circle at top, #1c2733 0%, var(--bg) 55%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #172433 0%, var(--bg) 75%);
       color: var(--text);
-      display: grid;
-      place-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       padding: 24px;
-    }
-    .card {
-      width: min(720px, 100%);
-      background: var(--panel);
-      border: 1px solid #2b3642;
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
-    }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 1.6rem;
-      font-weight: 650;
-    }
-    p {
-      margin: 0 0 20px;
-      color: var(--muted);
       line-height: 1.5;
     }
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
+
+    .container {
+      width: min(840px, 100%);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .title-group h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .title-group p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+
+    .connection-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      background: var(--badge-bg);
+      border: 1px solid var(--card-border);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #eab308;
+      transition: background-color 0.3s ease;
+    }
+
+    .status-dot.connected { background: var(--accent); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+    .status-dot.disconnected { background: var(--danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+      background: var(--card-inner);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s, background-color 0.2s;
+      cursor: pointer;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
     button {
+      flex: 1;
       border: 0;
-      border-radius: 10px;
-      padding: 10px 16px;
-      font-size: 0.95rem;
+      border-radius: 12px;
+      padding: 13px 20px;
+      font-size: 0.98rem;
       font-weight: 600;
       cursor: pointer;
       color: white;
       background: var(--accent);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
     }
-    button:hover { background: var(--accent-hover); }
-    button.stop { background: var(--danger); }
+
+    button:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button.stop {
+      background: var(--danger);
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+    }
+
+    button.stop:hover:not(:disabled) {
+      background: var(--danger-hover);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
     button:disabled {
-      opacity: 0.55;
+      opacity: 0.45;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
-    #preview {
+
+    .preview-wrapper {
+      position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
-      background: #0b0f13;
-      border-radius: 12px;
+      background: #000;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+
+    #preview {
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      border: 1px solid #2b3642;
     }
-    #status {
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: var(--muted);
+
+    .stats-overlay {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      pointer-events: none;
     }
+
+    .stat-chip {
+      background: rgba(10, 15, 22, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #e2e8f0;
+      font-feature-settings: "tnum";
+    }
+
+    .stat-chip strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    #statusMessage {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
     canvas { display: none; }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>Minecraft Screen Capture</h1>
-    <p>
-      このページは Minecraft がローカルでホストしています（127.0.0.1）。
-      「画面を共有」を押して共有したい画面・ウィンドウを選ぶと、ゲーム内オーバーレイに表示されます。
-    </p>
-    <div class="row">
-      <button id="startBtn" type="button">画面を共有</button>
-      <button id="stopBtn" class="stop" type="button" disabled>共有を停止</button>
+  <main class="container">
+    <header class="header">
+      <div class="title-group">
+        <h1>Minecraft Screen Capture (Smooth)</h1>
+        <p>低遅延・高フレームレート WebSocket ストリーミング（127.0.0.1）</p>
+      </div>
+      <div class="connection-badge">
+        <span id="wsDot" class="status-dot"></span>
+        <span id="wsStatusText">WebSocket 接続中…</span>
+      </div>
+    </header>
+
+    <div class="controls-grid">
+      <div class="control-item">
+        <label class="control-label" for="modeSelect">転送モード</label>
+        <select id="modeSelect">
+          <option value="raw" selected>RAW RGBA (最高速・高画質)</option>
+          <option value="jpeg">JPEG (軽量)</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label class="control-label" for="fpsSelect">目標フレームレート</label>
+        <select id="fpsSelect">
+          <option value="60">60 FPS (滑らか)</option>
+          <option value="30" selected>30 FPS (標準)</option>
+          <option value="15">15 FPS (軽量)</option>
+        </select>
+      </div>
+
+      <div class="control-item">
+        <label class="control-label" for="resolutionSelect">最大解像度</label>
+        <select id="resolutionSelect">
+          <option value="1920">1080p (1920px)</option>
+          <option value="1280" selected>720p (1280px)</option>
+          <option value="960">540p (960px)</option>
+          <option value="640">360p (640px)</option>
+        </select>
+      </div>
     </div>
-    <video id="preview" autoplay playsinline muted></video>
+
+    <div class="button-group">
+      <button id="startBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+        画面共有を開始
+      </button>
+      <button id="stopBtn" class="stop" type="button" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"></rect></svg>
+        共有を停止
+      </button>
+    </div>
+
+    <div class="preview-wrapper">
+      <video id="preview" autoplay playsinline muted></video>
+      <div class="stats-overlay">
+        <div class="stat-chip">FPS: <strong id="statFps">0</strong></div>
+        <div class="stat-chip">帯域: <strong id="statBps">0.0 MB/s</strong></div>
+        <div class="stat-chip">解像度: <strong id="statRes">-</strong></div>
+        <div class="stat-chip">総フレーム: <strong id="statTotalFrames">0</strong></div>
+      </div>
+    </div>
+
     <canvas id="canvas"></canvas>
-    <div id="status">待機中…</div>
+    <div id="statusMessage">準備完了</div>
   </main>
 
   <script>
     const preview = document.getElementById("preview");
     const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = canvas.getContext("2d", { willReadFrequently: true, alpha: false });
     const startBtn = document.getElementById("startBtn");
     const stopBtn = document.getElementById("stopBtn");
-    const statusEl = document.getElementById("status");
+    const statusMessage = document.getElementById("statusMessage");
+    const wsDot = document.getElementById("wsDot");
+    const wsStatusText = document.getElementById("wsStatusText");
+
+    const modeSelect = document.getElementById("modeSelect");
+    const fpsSelect = document.getElementById("fpsSelect");
+    const resolutionSelect = document.getElementById("resolutionSelect");
+
+    const statFps = document.getElementById("statFps");
+    const statBps = document.getElementById("statBps");
+    const statRes = document.getElementById("statRes");
+    const statTotalFrames = document.getElementById("statTotalFrames");
 
     let stream = null;
-    let timer = null;
-    let sending = false;
-    let fps = 15;
-    let maxWidth = 1280;
+    let ws = null;
+    let isCapturing = false;
+    let frameCallbackId = null;
+    let fallbackTimerId = null;
 
+    // 統計用カウンター
+    let totalFramesSent = 0;
+    let framesThisSecond = 0;
+    let bytesThisSecond = 0;
+    let lastStatsTime = performance.now();
+
+    function updateStatsTimer() {
+      const now = performance.now();
+      const elapsed = (now - lastStatsTime) / 1000;
+      if (elapsed >= 1.0) {
+        const currentFps = Math.round(framesThisSecond / elapsed);
+        const mbps = (bytesThisSecond / (1024 * 1024 * elapsed)).toFixed(1);
+        statFps.textContent = currentFps;
+        statBps.textContent = mbps + " MB/s";
+        statTotalFrames.textContent = totalFramesSent.toLocaleString();
+
+        framesThisSecond = 0;
+        bytesThisSecond = 0;
+        lastStatsTime = now;
+      }
+      requestAnimationFrame(updateStatsTimer);
+    }
+    requestAnimationFrame(updateStatsTimer);
+
+    // WebSocket 接続管理
+    function initWebSocket() {
+      if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+        return;
+      }
+      const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+      const url = `${protocol}//${location.host}/ws`;
+
+      ws = new WebSocket(url);
+      ws.binaryType = "arraybuffer";
+
+      ws.onopen = () => {
+        wsDot.className = "status-dot connected";
+        wsStatusText.textContent = "WebSocket 接続中";
+      };
+
+      ws.onclose = () => {
+        wsDot.className = "status-dot disconnected";
+        wsStatusText.textContent = "切断 (再試行中…)";
+        setTimeout(initWebSocket, 2000);
+      };
+
+      ws.onerror = () => {
+        wsDot.className = "status-dot disconnected";
+        wsStatusText.textContent = "接続エラー";
+      };
+    }
+    initWebSocket();
+
+    // サーバー設定取得
     async function loadConfig() {
       try {
         const res = await fetch("/config.json", { cache: "no-store" });
-        if (!res.ok) return;
-        const cfg = await res.json();
-        if (cfg.fps) fps = cfg.fps;
-        if (cfg.maxWidth) maxWidth = cfg.maxWidth;
+        if (res.ok) {
+          const cfg = await res.json();
+          if (cfg.fps) {
+            const opt = [...fpsSelect.options].find(o => parseInt(o.value) === cfg.fps);
+            if (opt) fpsSelect.value = opt.value;
+          }
+          if (cfg.maxWidth) {
+            const opt = [...resolutionSelect.options].find(o => parseInt(o.value) === cfg.maxWidth);
+            if (opt) resolutionSelect.value = opt.value;
+          }
+        }
       } catch (e) {
-        console.warn("config load failed", e);
+        console.warn("Config load failed", e);
       }
     }
 
-    function setStatus(text) {
-      statusEl.textContent = text;
-    }
+    let lastFrameTime = 0;
 
-    async function sendFrame() {
-      if (!stream || sending) return;
+    async function processAndSendFrame() {
+      if (!stream || !isCapturing) return;
+
       const track = stream.getVideoTracks()[0];
       if (!track || track.readyState !== "live") return;
 
@@ -136,10 +425,26 @@
       const vh = preview.videoHeight || 0;
       if (vw < 2 || vh < 2) return;
 
+      // フレームレート制限
+      const targetFps = parseInt(fpsSelect.value) || 30;
+      const minInterval = 1000 / targetFps;
+      const now = performance.now();
+      if (now - lastFrameTime < minInterval - 2) {
+        return;
+      }
+      lastFrameTime = now;
+
+      // WebSocket バックプレッシャー制御 (バッファ詰まり時はスキップして遅延蓄積を防止)
+      if (ws && ws.readyState === WebSocket.OPEN && ws.bufferedAmount > 4 * 1024 * 1024) {
+        return;
+      }
+
+      // 解像度スケーリング
+      const maxW = parseInt(resolutionSelect.value) || 1280;
       let tw = vw;
       let th = vh;
-      if (tw > maxWidth) {
-        const scale = maxWidth / tw;
+      if (tw > maxW) {
+        const scale = maxW / tw;
         tw = Math.max(2, Math.round(tw * scale));
         th = Math.max(2, Math.round(th * scale));
       }
@@ -147,66 +452,229 @@
       if (canvas.width !== tw || canvas.height !== th) {
         canvas.width = tw;
         canvas.height = th;
+        statRes.textContent = `${tw}x${th}`;
       }
 
       ctx.drawImage(preview, 0, 0, tw, th);
 
-      sending = true;
+      const mode = modeSelect.value;
+      if (mode === "raw") {
+        sendRawFrame(tw, th);
+      } else {
+        await sendJpegFrame(tw, th);
+      }
+    }
+
+    function sendRawFrame(w, h) {
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const rgba = imgData.data; // Uint8ClampedArray
+
+      // ヘッダー (5 bytes): [format(1), w_high, w_low, h_high, h_low]
+      const packet = new Uint8Array(5 + rgba.byteLength);
+      packet[0] = 1; // RAW_RGBA
+      packet[1] = (w >> 8) & 0xFF;
+      packet[2] = w & 0xFF;
+      packet[3] = (h >> 8) & 0xFF;
+      packet[4] = h & 0xFF;
+      packet.set(rgba, 5);
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(packet.buffer);
+        totalFramesSent++;
+        framesThisSecond++;
+        bytesThisSecond += packet.byteLength;
+      } else {
+        // HTTP POST fallback
+        fetch("/frame", {
+          method: "POST",
+          headers: { "Content-Type": "application/octet-stream" },
+          body: packet.buffer,
+          cache: "no-store"
+        }).then(() => {
+          totalFramesSent++;
+          framesThisSecond++;
+          bytesThisSecond += packet.byteLength;
+        }).catch(() => {});
+      }
+    }
+
+    async function sendJpegFrame(w, h) {
       try {
-        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.7));
-        if (blob) {
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.75));
+        if (!blob) return;
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          const arrayBuf = await blob.arrayBuffer();
+          const packet = new Uint8Array(5 + arrayBuf.byteLength);
+          packet[0] = 2; // JPEG
+          packet[1] = (w >> 8) & 0xFF;
+          packet[2] = w & 0xFF;
+          packet[3] = (h >> 8) & 0xFF;
+          packet[4] = h & 0xFF;
+          packet.set(new Uint8Array(arrayBuf), 5);
+
+          ws.send(packet.buffer);
+          totalFramesSent++;
+          framesThisSecond++;
+          bytesThisSecond += packet.byteLength;
+        } else {
+          // HTTP POST フォールバック
           await fetch("/frame", {
             method: "POST",
             headers: { "Content-Type": "image/jpeg" },
             body: blob,
             cache: "no-store"
           });
+          totalFramesSent++;
+          framesThisSecond++;
+          bytesThisSecond += blob.size;
         }
       } catch (e) {
-        console.warn("frame upload failed", e);
-        setStatus("送信エラー: Minecraft 側のサーバに届いていません");
-      } finally {
-        sending = false;
+        console.warn("JPEG send error", e);
+      }
+    }
+
+    // バックグラウンド・最小化時でもスロットリングされない Web Worker タイマー
+    const workerScript = `
+      let timerId = null;
+      self.onmessage = function(e) {
+        if (e.data.action === "start") {
+          clearInterval(timerId);
+          timerId = setInterval(() => {
+            self.postMessage("tick");
+          }, e.data.interval);
+        } else if (e.data.action === "stop") {
+          clearInterval(timerId);
+          timerId = null;
+        }
+      };
+    `;
+    let worker = null;
+    try {
+      const blob = new Blob([workerScript], { type: "application/javascript" });
+      worker = new Worker(URL.createObjectURL(blob));
+      worker.onmessage = () => {
+        if (isCapturing) {
+          processAndSendFrame();
+        }
+      };
+    } catch (e) {
+      console.warn("Web Worker creation failed", e);
+    }
+
+    let audioContext = null;
+    function enableBackgroundKeepalive() {
+      try {
+        if (!audioContext) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioContext = new AudioContextClass();
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            gain.gain.value = 0.00001;
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+          }
+        }
+        if (audioContext && audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+      } catch (e) {
+        console.warn("Audio keepalive failed", e);
+      }
+    }
+
+    // メインキャプチャループ
+    function onVideoFrame(now, metadata) {
+      if (!isCapturing) return;
+      processAndSendFrame();
+      if ("requestVideoFrameCallback" in preview) {
+        frameCallbackId = preview.requestVideoFrameCallback(onVideoFrame);
       }
     }
 
     function startLoop() {
       stopLoop();
-      const interval = Math.max(16, Math.round(1000 / fps));
-      timer = setInterval(sendFrame, interval);
-    }
+      isCapturing = true;
 
-    function stopLoop() {
-      if (timer) {
-        clearInterval(timer);
-        timer = null;
+      // 1. フォアグラウンド同期 (対応ブラウザ)
+      if ("requestVideoFrameCallback" in preview) {
+        frameCallbackId = preview.requestVideoFrameCallback(onVideoFrame);
+      }
+
+      // 2. バックグラウンド・最小化用タイマー (Web Worker)
+      const targetFps = parseInt(fpsSelect.value) || 30;
+      const intervalMs = Math.max(16, Math.floor(1000 / targetFps));
+      if (worker) {
+        worker.postMessage({ action: "start", interval: intervalMs });
+      } else {
+        fallbackTimerId = setInterval(() => {
+          if (isCapturing) processAndSendFrame();
+        }, intervalMs);
       }
     }
 
+    function stopLoop() {
+      isCapturing = false;
+      if (frameCallbackId !== null && "cancelVideoFrameCallback" in preview) {
+        preview.cancelVideoFrameCallback(frameCallbackId);
+        frameCallbackId = null;
+      }
+      if (worker) {
+        worker.postMessage({ action: "stop" });
+      }
+      if (fallbackTimerId !== null) {
+        clearInterval(fallbackTimerId);
+        fallbackTimerId = null;
+      }
+    }
+
+    fpsSelect.addEventListener("change", () => {
+      if (isCapturing) {
+        const targetFps = parseInt(fpsSelect.value) || 30;
+        const intervalMs = Math.max(16, Math.floor(1000 / targetFps));
+        if (worker) {
+          worker.postMessage({ action: "start", interval: intervalMs });
+        }
+      }
+    });
+
     async function startCapture() {
-      await loadConfig();
+      enableBackgroundKeepalive();
+
+      const maxW = parseInt(resolutionSelect.value) || 1280;
+      const targetFps = parseInt(fpsSelect.value) || 30;
+
       try {
         stream = await navigator.mediaDevices.getDisplayMedia({
           video: {
-            frameRate: { ideal: fps, max: fps },
-            width: { ideal: maxWidth }
+            frameRate: { ideal: targetFps, max: 60 },
+            width: { ideal: maxW }
           },
           audio: false
         });
       } catch (e) {
-        setStatus("画面共有がキャンセルされました");
+        statusMessage.textContent = "画面共有がキャンセルされました";
         return;
       }
 
       preview.srcObject = stream;
+      try {
+        await preview.play();
+      } catch (err) {
+        console.warn("preview.play failed", err);
+      }
+
       startBtn.disabled = true;
       stopBtn.disabled = false;
-      setStatus("共有中… Minecraft 右上にプレビューが表示されます");
+      statusMessage.textContent = "画面共有ストリーミング中… Minecraft 内に投影中";
+
       startLoop();
 
       stream.getVideoTracks()[0].addEventListener("ended", () => {
         stopCapture(false);
-        setStatus("ブラウザ側で共有が終了しました");
+        statusMessage.textContent = "ブラウザ側で共有が終了しました";
       });
     }
 
@@ -219,12 +687,18 @@
       preview.srcObject = null;
       startBtn.disabled = false;
       stopBtn.disabled = true;
-      if (updateStatus) setStatus("共有を停止しました");
+      statFps.textContent = "0";
+      statBps.textContent = "0.0 MB/s";
+      statRes.textContent = "-";
+      if (updateStatus) statusMessage.textContent = "共有を停止しました";
     }
 
     startBtn.addEventListener("click", startCapture);
     stopBtn.addEventListener("click", () => stopCapture(true));
-    loadConfig().then(() => setStatus("準備完了（fps=" + fps + ", maxWidth=" + maxWidth + "）"));
+
+    loadConfig().then(() => {
+      statusMessage.textContent = "準備完了";
+    });
   </script>
 </body>
 </html>

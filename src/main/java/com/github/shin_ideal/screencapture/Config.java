@@ -7,7 +7,7 @@ import java.io.File;
 public class Config {
 
     public static int serverPort = 8765;
-    public static int captureFps = 15;
+    public static int captureFps = 30;
     public static int maxFrameWidth = 1280;
     public static int overlayWidth = 320;
     public static int overlayMargin = 8;

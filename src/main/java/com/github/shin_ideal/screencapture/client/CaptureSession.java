@@ -16,6 +16,9 @@ public final class CaptureSession {
 
     private static CaptureHttpServer server;
     private static final AtomicReference<BufferedImage> latestFrame = new AtomicReference<>();
+    private static final AtomicReference<RawFrame> latestRawFrame = new AtomicReference<>();
+    private static final RawFrame[] rawFramePool = new RawFrame[]{new RawFrame(), new RawFrame(), new RawFrame()};
+    private static int poolIndex = 0;
     private static final AtomicLong frameCount = new AtomicLong();
     private static volatile boolean running;
 
@@ -46,6 +49,7 @@ public final class CaptureSession {
             server = null;
         }
         latestFrame.set(null);
+        latestRawFrame.set(null);
         CaptureTexture.clear();
         ScreenCaptureMod.LOG.info("Local capture server stopped");
     }
@@ -62,6 +66,29 @@ public final class CaptureSession {
         return frameCount.get();
     }
 
+    public static void acceptRawFrame(int width, int height, byte[] data, int offset, int length) {
+        if (!running || data == null || length <= 0) {
+            return;
+        }
+        synchronized (rawFramePool) {
+            RawFrame currentLatest = latestRawFrame.get();
+            RawFrame target = rawFramePool[poolIndex];
+            if (target == currentLatest) {
+                poolIndex = (poolIndex + 1) % rawFramePool.length;
+                target = rawFramePool[poolIndex];
+            }
+            poolIndex = (poolIndex + 1) % rawFramePool.length;
+
+            target.ensureCapacity(width, height);
+            target.put(data, offset, length);
+            latestRawFrame.set(target);
+            long count = frameCount.incrementAndGet();
+            if (count == 1 || count % 150 == 0) {
+                ScreenCaptureMod.LOG.info("Received RAW frame #" + count + " (" + width + "x" + height + ", " + length + " bytes)");
+            }
+        }
+    }
+
     public static void acceptJpegFrame(byte[] jpegBytes) {
         if (!running || jpegBytes == null || jpegBytes.length == 0) {
             return;
@@ -70,11 +97,18 @@ public final class CaptureSession {
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(jpegBytes));
             if (image != null) {
                 latestFrame.set(image);
-                frameCount.incrementAndGet();
+                long count = frameCount.incrementAndGet();
+                if (count == 1 || count % 150 == 0) {
+                    ScreenCaptureMod.LOG.info("Received JPEG frame #" + count + " (" + image.getWidth() + "x" + image.getHeight() + ")");
+                }
             }
         } catch (IOException e) {
             ScreenCaptureMod.LOG.warn("Failed to decode capture frame", e);
         }
+    }
+
+    public static RawFrame pollLatestRawFrame() {
+        return latestRawFrame.getAndSet(null);
     }
 
     public static BufferedImage pollLatestFrame() {

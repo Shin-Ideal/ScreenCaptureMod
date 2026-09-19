@@ -21,11 +21,15 @@ public final class CaptureTexture {
     }
 
     public static void tick() {
-        BufferedImage frame = CaptureSession.pollLatestFrame();
-        if (frame == null) {
+        RawFrame rawFrame = CaptureSession.pollLatestRawFrame();
+        if (rawFrame != null) {
+            uploadRaw(rawFrame);
             return;
         }
-        upload(frame);
+        BufferedImage frame = CaptureSession.pollLatestFrame();
+        if (frame != null) {
+            upload(frame);
+        }
     }
 
     public static boolean hasFrame() {
@@ -55,6 +59,44 @@ public final class CaptureTexture {
         width = 0;
         height = 0;
         hasFrame = false;
+    }
+
+    private static void uploadRaw(RawFrame rawFrame) {
+        int w = rawFrame.getWidth();
+        int h = rawFrame.getHeight();
+        byte[] data = rawFrame.getData();
+        if (data == null || w <= 0 || h <= 0) {
+            return;
+        }
+
+        if (texture == null || w != width || h != height) {
+            if (location != null) {
+                Minecraft.getMinecraft()
+                    .getTextureManager()
+                    .deleteTexture(location);
+            }
+            texture = new DynamicTexture(w, h);
+            location = Minecraft.getMinecraft()
+                .getTextureManager()
+                .getDynamicTextureLocation("screencapture_frame", texture);
+            width = w;
+            height = h;
+        }
+
+        int[] textureData = texture.getTextureData();
+        int pixelCount = Math.min(w * h, textureData.length);
+
+        int byteIdx = 0;
+        for (int i = 0; i < pixelCount; i++) {
+            int r = data[byteIdx++] & 0xFF;
+            int g = data[byteIdx++] & 0xFF;
+            int b = data[byteIdx++] & 0xFF;
+            int a = data[byteIdx++] & 0xFF;
+            textureData[i] = (a << 24) | (r << 16) | (g << 8) | b;
+        }
+
+        texture.updateDynamicTexture();
+        hasFrame = true;
     }
 
     private static void upload(BufferedImage image) {
