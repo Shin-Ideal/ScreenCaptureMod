@@ -1,6 +1,6 @@
-package com.github.shin_ideal.screencapture.client;
+package com.github.shin_ideal.screencapturecontrol.client;
 
-import com.github.shin_ideal.screencapture.Config;
+import com.github.shin_ideal.screencapturecontrol.Config;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Keyboard;

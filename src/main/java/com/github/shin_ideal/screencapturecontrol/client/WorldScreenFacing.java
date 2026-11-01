@@ -1,4 +1,4 @@
-package com.github.shin_ideal.screencapture.client;
+package com.github.shin_ideal.screencapturecontrol.client;
 
 public enum WorldScreenFacing {
     NORTH(0.0F, 0.0F, -1.0F, 1.0F, 0.0F),

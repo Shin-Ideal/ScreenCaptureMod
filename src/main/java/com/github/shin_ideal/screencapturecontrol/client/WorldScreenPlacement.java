@@ -1,4 +1,4 @@
-package com.github.shin_ideal.screencapture.client;
+package com.github.shin_ideal.screencapturecontrol.client;
 
 public final class WorldScreenPlacement {
 

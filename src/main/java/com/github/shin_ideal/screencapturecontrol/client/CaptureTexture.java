@@ -1,4 +1,4 @@
-package com.github.shin_ideal.screencapture.client;
+package com.github.shin_ideal.screencapturecontrol.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
@@ -8,7 +8,6 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 /**
@@ -43,29 +42,11 @@ public final class CaptureTexture {
     }
 
     public static void tick() {
-        // 1. Zero-Copy Shared Memory Frame Check (Fastest, sub-millisecond, zero GC)
-        if (SharedMemoryBridge.isActive() || SharedMemoryBridge.isAvailable()) {
+        if (SharedMemoryBridge.isActive()) {
             ByteBuffer shmBuf = SharedMemoryBridge.pollFrame(dimBuffer);
             if (shmBuf != null) {
                 uploadBuffer(shmBuf, dimBuffer[0], dimBuffer[1], GL12.GL_BGRA);
-                return;
             }
-            if (SharedMemoryBridge.isCompanionAlive()) {
-                // Keep current texture when no new SHM frame arrived in this sub-millisecond interval.
-                // Never fall through to delayed WebSocket frames while SharedMemory is active.
-                return;
-            }
-        }
-
-        // 2. WebSocket / RAW fallback (only when SharedMemory is not active)
-        RawFrame rawFrame = CaptureSession.pollLatestRawFrame();
-        if (rawFrame != null) {
-            uploadDirect(rawFrame);
-            return;
-        }
-        BufferedImage frame = CaptureSession.pollLatestFrame();
-        if (frame != null) {
-            uploadLegacy(frame);
         }
     }
 
@@ -119,15 +100,6 @@ public final class CaptureTexture {
         }
     }
 
-    private static void uploadDirect(RawFrame rawFrame) {
-        int w = rawFrame.getWidth();
-        int h = rawFrame.getHeight();
-        int fmt = rawFrame.getFormat();
-        ByteBuffer buf = rawFrame.getDirectBuffer();
-        int glPixelFormat = (fmt == 3) ? GL12.GL_BGRA : GL11.GL_RGBA;
-        uploadBuffer(buf, w, h, glPixelFormat);
-    }
-
     public static void uploadBuffer(ByteBuffer buf, int w, int h, int glPixelFormat) {
         if (buf == null || w <= 0 || h <= 0) {
             return;
@@ -164,38 +136,6 @@ public final class CaptureTexture {
             GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, w, h, glPixelFormat, dataType, buf);
         }
 
-        activeSlot = nextSlot;
-        glTextureId = texId;
-        directTexture.setId(texId);
-        width = w;
-        height = h;
-        hasFrame = true;
-    }
-
-    private static void uploadLegacy(BufferedImage image) {
-        int w = image.getWidth();
-        int h = image.getHeight();
-        if (w <= 0 || h <= 0) return;
-
-        ensureRegistered();
-
-        int[] pixels = new int[w * h];
-        image.getRGB(0, 0, w, h, pixels, 0, w);
-
-        int nextSlot = 1 - activeSlot;
-        int texId = glTextureIds[nextSlot];
-        if (texId == 0 || w != slotWidths[nextSlot] || h != slotHeights[nextSlot]) {
-            if (texId != 0) {
-                TextureUtil.deleteTexture(texId);
-            }
-            texId = TextureUtil.glGenTextures();
-            glTextureIds[nextSlot] = texId;
-            slotWidths[nextSlot] = w;
-            slotHeights[nextSlot] = h;
-            TextureUtil.allocateTexture(texId, w, h);
-        }
-
-        TextureUtil.uploadTexture(texId, pixels, w, h);
         activeSlot = nextSlot;
         glTextureId = texId;
         directTexture.setId(texId);

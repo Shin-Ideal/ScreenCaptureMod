@@ -1,6 +1,6 @@
-package com.github.shin_ideal.screencapture.client;
+package com.github.shin_ideal.screencapturecontrol.client;
 
-import com.github.shin_ideal.screencapture.Config;
+import com.github.shin_ideal.screencapturecontrol.Config;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

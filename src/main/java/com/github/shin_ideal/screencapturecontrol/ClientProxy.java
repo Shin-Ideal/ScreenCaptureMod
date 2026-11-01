@@ -1,10 +1,10 @@
-package com.github.shin_ideal.screencapture;
+package com.github.shin_ideal.screencapturecontrol;
 
-import com.github.shin_ideal.screencapture.client.CaptureKeyHandler;
-import com.github.shin_ideal.screencapture.client.CaptureOverlay;
-import com.github.shin_ideal.screencapture.client.CaptureSession;
-import com.github.shin_ideal.screencapture.client.CaptureWorldProjection;
-import com.github.shin_ideal.screencapture.command.ScreenCaptureControlCommand;
+import com.github.shin_ideal.screencapturecontrol.client.CaptureKeyHandler;
+import com.github.shin_ideal.screencapturecontrol.client.CaptureOverlay;
+import com.github.shin_ideal.screencapturecontrol.client.CaptureSession;
+import com.github.shin_ideal.screencapturecontrol.client.CaptureWorldProjection;
+import com.github.shin_ideal.screencapturecontrol.command.ScreenCaptureControlCommand;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;

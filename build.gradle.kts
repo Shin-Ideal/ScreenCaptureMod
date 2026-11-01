@@ -3,17 +3,11 @@ plugins {
     id("com.gtnewhorizons.gtnhconvention")
 }
 
-version = "1.0.0-desktop"
-
-tasks.withType<ProcessResources> {
-    filteringCharset = "UTF-8"
-}
-
 tasks.named<org.gradle.jvm.tasks.Jar>("reobfJar") {
-    archiveClassifier.set("desktop")
+    archiveClassifier.set("control")
     doLast {
         val sourceJar = archiveFile.get().asFile
-        val targetJar = sourceJar.parentFile.resolve("ScreenCaptureControlMod-v1.0.0-desktop.jar")
+        val targetJar = sourceJar.parentFile.resolve("screencapture-v1.0.0-control.jar")
         sourceJar.copyTo(targetJar, overwrite = true)
     }
 }

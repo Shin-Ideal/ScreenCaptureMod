@@ -1,4 +1,4 @@
-package com.github.shin_ideal.screencapture;
+package com.github.shin_ideal.screencapturecontrol;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -20,8 +20,8 @@ public class ScreenCaptureControlMod {
     public static final Logger LOG = LogManager.getLogger("ScreenCaptureControlMod");
 
     @SidedProxy(
-        clientSide = "com.github.shin_ideal.screencapture.ClientProxy",
-        serverSide = "com.github.shin_ideal.screencapture.CommonProxy")
+        clientSide = "com.github.shin_ideal.screencapturecontrol.ClientProxy",
+        serverSide = "com.github.shin_ideal.screencapturecontrol.CommonProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler

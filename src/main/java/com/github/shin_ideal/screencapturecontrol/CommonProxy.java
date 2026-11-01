@@ -1,4 +1,4 @@
-package com.github.shin_ideal.screencapture;
+package com.github.shin_ideal.screencapturecontrol;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;

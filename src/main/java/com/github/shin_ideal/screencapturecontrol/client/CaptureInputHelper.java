@@ -1,4 +1,4 @@
-package com.github.shin_ideal.screencapture.client;
+package com.github.shin_ideal.screencapturecontrol.client;
 
 import org.lwjgl.input.Keyboard;
 
@@ -6,8 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Maps LWJGL 2 keyboard events to Windows Virtual-Key (VK_*) codes
- * and serializes input events into compact JSON strings.
+ * Maps LWJGL 2 keyboard events to Windows Virtual-Key (VK_*) codes.
  */
 public final class CaptureInputHelper {
 
@@ -109,53 +108,5 @@ public final class CaptureInputHelper {
     public static int toVirtualKey(int lwjglKey) {
         Integer vk = LWJGL_TO_VK.get(lwjglKey);
         return vk != null ? vk : 0;
-    }
-
-    public static String mouseMove(float normX, float normY) {
-        return String.format(java.util.Locale.US, "{\"type\":\"mouse_move\",\"x\":%.4f,\"y\":%.4f}", normX, normY);
-    }
-
-    public static String mouseDown(int button, float normX, float normY) {
-        return String.format(java.util.Locale.US, "{\"type\":\"mouse_down\",\"button\":%d,\"x\":%.4f,\"y\":%.4f}", button, normX, normY);
-    }
-
-    public static String mouseUp(int button, float normX, float normY) {
-        return String.format(java.util.Locale.US, "{\"type\":\"mouse_up\",\"button\":%d,\"x\":%.4f,\"y\":%.4f}", button, normX, normY);
-    }
-
-    public static String mouseDown(int button) {
-        return String.format(java.util.Locale.US, "{\"type\":\"mouse_down\",\"button\":%d}", button);
-    }
-
-    public static String mouseUp(int button) {
-        return String.format(java.util.Locale.US, "{\"type\":\"mouse_up\",\"button\":%d}", button);
-    }
-
-    public static String mouseWheel(int delta) {
-        return String.format(java.util.Locale.US, "{\"type\":\"mouse_wheel\",\"delta\":%d}", delta);
-    }
-
-    public static String keyDown(int vk) {
-        return String.format(java.util.Locale.US, "{\"type\":\"key_down\",\"vk\":%d}", vk);
-    }
-
-    public static String keyUp(int vk) {
-        return String.format(java.util.Locale.US, "{\"type\":\"key_up\",\"vk\":%d}", vk);
-    }
-
-    public static String character(char c) {
-        String escaped;
-        if (c == '"') escaped = "\\\"";
-        else if (c == '\\') escaped = "\\\\";
-        else if (c == '\r') escaped = "\\r";
-        else if (c == '\n') escaped = "\\n";
-        else if (c == '\t') escaped = "\\t";
-        else escaped = String.valueOf(c);
-
-        return String.format(java.util.Locale.US, "{\"type\":\"char\",\"char\":\"%s\"}", escaped);
-    }
-
-    public static String reset() {
-        return "{\"type\":\"reset\"}";
     }
 }
