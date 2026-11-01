@@ -2,8 +2,8 @@
 	"modListVersion": 2,
 	"modList": [{
 		"modid": "${modId}",
-		"name": "${modName}",
-		"description": "Share a screen via the browser Capture API and display it inside Minecraft.",
+		"name": "ScreenCaptureControlMod",
+		"description": "Capture and control Windows desktop and application windows from Minecraft at 60 FPS with full mouse & keyboard controls.",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
 		"url": "",

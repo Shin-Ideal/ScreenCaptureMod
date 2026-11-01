@@ -10,14 +10,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod(
-    modid = ScreenCaptureMod.MODID,
+    modid = ScreenCaptureControlMod.MODID,
     version = Tags.VERSION,
-    name = "ScreenCapture",
+    name = "ScreenCaptureControlMod",
     acceptedMinecraftVersions = "[1.7.10]")
-public class ScreenCaptureMod {
+public class ScreenCaptureControlMod {
 
-    public static final String MODID = "screencapture";
-    public static final Logger LOG = LogManager.getLogger(MODID);
+    public static final String MODID = "screencapturecontrolmod";
+    public static final Logger LOG = LogManager.getLogger("ScreenCaptureControlMod");
 
     @SidedProxy(
         clientSide = "com.github.shin_ideal.screencapture.ClientProxy",
@@ -31,7 +31,7 @@ public class ScreenCaptureMod {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        System.out.println("Hello ScreenCaptureMod!");
+        System.out.println("Hello ScreenCaptureControlMod!");
         proxy.init(event);
     }
 

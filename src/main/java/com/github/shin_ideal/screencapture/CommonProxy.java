@@ -9,7 +9,7 @@ public class CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
         Config.synchronizeConfiguration(event.getSuggestedConfigurationFile());
-        ScreenCaptureMod.LOG.info("ScreenCapture " + Tags.VERSION);
+        ScreenCaptureControlMod.LOG.info("ScreenCaptureControlMod " + Tags.VERSION);
     }
 
     public void init(FMLInitializationEvent event) {

@@ -1,9 +1,10 @@
 package com.github.shin_ideal.screencapture;
 
+import com.github.shin_ideal.screencapture.client.CaptureKeyHandler;
 import com.github.shin_ideal.screencapture.client.CaptureOverlay;
 import com.github.shin_ideal.screencapture.client.CaptureSession;
 import com.github.shin_ideal.screencapture.client.CaptureWorldProjection;
-import com.github.shin_ideal.screencapture.command.ScreenCaptureCommand;
+import com.github.shin_ideal.screencapture.command.ScreenCaptureControlCommand;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -23,6 +24,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void init(FMLInitializationEvent event) {
         super.init(event);
-        ClientCommandHandler.instance.registerCommand(new ScreenCaptureCommand());
+        CaptureKeyHandler.init();
+        ClientCommandHandler.instance.registerCommand(new ScreenCaptureControlCommand());
     }
 }

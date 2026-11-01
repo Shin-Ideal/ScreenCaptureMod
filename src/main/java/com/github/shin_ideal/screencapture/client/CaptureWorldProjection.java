@@ -72,17 +72,11 @@ public final class CaptureWorldProjection {
         return true;
     }
 
-    /**
-     * Current size, or config default when nothing is placed yet.
-     */
     public static float currentOrDefaultWidth() {
         WorldScreenPlacement current = placement;
         return current != null ? current.widthBlocks : Config.worldScreenWidth;
     }
 
-    /**
-     * Current facing, or null when nothing is placed yet.
-     */
     public static WorldScreenFacing currentFacingOrNull() {
         WorldScreenPlacement current = placement;
         return current != null ? current.facing : null;
@@ -92,12 +86,6 @@ public final class CaptureWorldProjection {
         return setFromLook(widthBlocks, null);
     }
 
-    /**
-     * Places a screen on the block face under the crosshair, or floating in front of the player.
-     *
-     * @param facingOverride optional facing; null keeps auto-detect from look / hit face
-     * @return true if placement succeeded
-     */
     public static boolean setFromLook(float widthBlocks, WorldScreenFacing facingOverride) {
         Minecraft mc = Minecraft.getMinecraft();
         EntityClientPlayerMP player = mc.thePlayer;
@@ -119,7 +107,6 @@ public final class CaptureWorldProjection {
                 return true;
             }
 
-            // Floor / ceiling: vertical screen at the hit point.
             WorldScreenFacing facing = facingOverride != null ? facingOverride
                 : WorldScreenFacing.facingPlayer(player.rotationYaw);
             double cx = mop.hitVec.xCoord;
@@ -130,7 +117,6 @@ public final class CaptureWorldProjection {
             return true;
         }
 
-        // Air / entity: place a few blocks ahead of the player.
         Vec3 look = player.getLook(1.0F);
         double dist = 3.0D;
         double cx = player.posX + look.xCoord * dist;
@@ -184,8 +170,7 @@ public final class CaptureWorldProjection {
         double y1 = current.centerY + halfH;
         double z1 = current.centerZ + facing.rightZ * halfW;
 
-        mc.getTextureManager()
-            .bindTexture(CaptureTexture.getLocation());
+        CaptureTexture.bind();
 
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         GL11.glPushMatrix();
@@ -202,12 +187,31 @@ public final class CaptureWorldProjection {
 
         Tessellator tess = Tessellator.instance;
         tess.startDrawingQuads();
-        // Front
         tess.addVertexWithUV(x0, y0, z0, 0.0D, 1.0D);
         tess.addVertexWithUV(x1, y0, z1, 1.0D, 1.0D);
         tess.addVertexWithUV(x1, y1, z1, 1.0D, 0.0D);
         tess.addVertexWithUV(x0, y1, z0, 0.0D, 0.0D);
         tess.draw();
+
+        // Draw zero-latency cursor on the 3D world projection screen
+        if (SharedMemoryBridge.isActive()) {
+            float normX = SharedMemoryBridge.getCursorX();
+            float normY = SharedMemoryBridge.getCursorY();
+            double cx = x0 + (x1 - x0) * normX + facing.normalX * 0.004D;
+            double cy = y1 - (y1 - y0) * normY;
+            double cz = z0 + (z1 - z0) * normX + facing.normalZ * 0.004D;
+            double cSize = Math.max(0.015D, drawW * 0.008D);
+
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glColor4f(1.0F, 0.2F, 0.2F, 0.95F);
+            tess.startDrawingQuads();
+            tess.addVertex(cx - facing.rightX * cSize, cy - cSize, cz - facing.rightZ * cSize);
+            tess.addVertex(cx + facing.rightX * cSize, cy - cSize, cz + facing.rightZ * cSize);
+            tess.addVertex(cx + facing.rightX * cSize, cy + cSize, cz + facing.rightZ * cSize);
+            tess.addVertex(cx - facing.rightX * cSize, cy + cSize, cz - facing.rightZ * cSize);
+            tess.draw();
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+        }
 
         GL11.glPopMatrix();
         GL11.glPopAttrib();
